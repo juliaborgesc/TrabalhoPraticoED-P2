@@ -162,12 +162,7 @@ NodePaciente* bd_buscar_cpf(BDPaciente* bd, const char* cpf){
 void bd_listar_pacientes(BDPaciente* bd){
     NodePaciente* atual = bd->first;
     while (atual) {
-        printf("| %-3d | %-13s | %-25s | %-5d | %-13s |\n", 
-               atual->paciente.id, 
-               atual->paciente.cpf,
-               atual->paciente.nome,
-               atual->paciente.idade,
-               atual->paciente.data_cadastro); /* Imprime os dados do paciente em formato tabela */
+        exibir_paciente_tabela(atual->paciente);
         atual = atual->next;
     }
 }

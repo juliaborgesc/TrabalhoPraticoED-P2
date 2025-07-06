@@ -17,50 +17,26 @@ void menu_principal() {
 }
 
 void consulta_nome(BDPaciente* bd) {
-    char nome[100];
+    char nome[80];
     printf("Digite o nome que deseja pesquisar: ");
     fgets(nome, sizeof(nome), stdin);
     nome[strcspn(nome, "\n")] = '\0';
     
-    char busca[100];
-    strcpy(busca, nome);
-    for(int i = 0; busca[i]; i++) {
-        busca[i] = tolower(busca[i]);
-    }
-    
-    NodePaciente* resultados = NULL;
-    NodePaciente* atual = bd->first;
-    
-    while(atual) {
-        char nome_paciente[100];
-        strcpy(nome_paciente, atual->paciente.nome);
-        for(int i = 0; nome_paciente[i]; i++) {
-            nome_paciente[i] = tolower(nome_paciente[i]);
-        }
-        
-        if(strstr(nome_paciente, busca) != NULL) {
-            NodePaciente* novo = (NodePaciente*)malloc(sizeof(NodePaciente));
-            if(novo) {
-                novo->paciente = atual->paciente;
-                novo->next = resultados;
-                resultados = novo;
-            }
-        }
-        atual = atual->next;
-    }
-    
+    NodePaciente* resultados = bd_buscar_nome(bd, nome);
     if (!resultados) {
         printf("Nenhum paciente encontrado.\n");
         return;
     }
     
     printf("\nResultados:\n");
-    NodePaciente* temp = resultados;
-    while (temp) {
-        visualizar_paciente(temp->paciente);
-        NodePaciente* proximo = temp->next;
+    exibir_cabecalho_tabela();
+    
+    NodePaciente* atual = resultados;
+    while (atual) {
+        exibir_paciente_tabela(atual->paciente);
+        NodePaciente* temp = atual;
+        atual = atual->next;
         free(temp);
-        temp = proximo;
     }
 }
 
@@ -77,9 +53,11 @@ void consulta_cpf(BDPaciente* bd) {
     }
     
     printf("\nResultados:\n");
+    exibir_cabecalho_tabela();
+    
     NodePaciente* atual = resultados;
     while (atual) {
-        visualizar_paciente(atual->paciente);
+        exibir_paciente_tabela(atual->paciente);
         NodePaciente* temp = atual;
         atual = atual->next;
         free(temp);
@@ -87,7 +65,11 @@ void consulta_cpf(BDPaciente* bd) {
 }
 
 void atualizar_paciente(BDPaciente* bd) {
-    printf("\nAtualizar Paciente:\n");
+    printf("\n[Atualizar Paciente]\n");
+
+    /* Lista todos para que se escolha um */
+    printf("\nLista de pacientes:\n");
+    exibir_cabecalho_tabela();
     bd_listar_pacientes(bd);
     
     printf("\nDigite o ID do paciente: ");
@@ -102,38 +84,61 @@ void atualizar_paciente(BDPaciente* bd) {
     }
     
     printf("\nDados atuais:\n");
-    visualizar_paciente(*p);
+    exibir_cabecalho_tabela();
+    exibir_paciente_tabela(*p);
     
-    printf("\nNovos dados:\n");
+    printf("\nDigite os novos valores (digite '-' manter o atual):\n");
     
+    Paciente novo = *p;
     char entrada[100];
-    Paciente new = *p;
     
     printf("CPF [%s]: ", p->cpf);
     fgets(entrada, sizeof(entrada), stdin);
-    if (entrada[0] != '\n') {
-        entrada[strcspn(entrada, "\n")] = '\0';
-        strcpy(new.cpf, entrada);
+    if(strcmp(entrada, "-") != 0) {
+        char cpf_sem_formatacao[12];
+        int j = 0;
+        for(int i = 0; entrada[i] && j < 11; i++) {
+            if(isdigit(entrada[i])) {
+                cpf_sem_formatacao[j++] = entrada[i];
+            }
+        }
+        cpf_sem_formatacao[j] = '\0';
+        
+        if(strlen(cpf_sem_formatacao) == 11) {
+            formatar_cpf(novo.cpf, cpf_sem_formatacao);
+        } else {
+            printf("CPF deve conter 11 dígitos!\n");
+        }
     }
     
     printf("Nome [%s]: ", p->nome);
     fgets(entrada, sizeof(entrada), stdin);
-    if (entrada[0] != '\n') {
-        entrada[strcspn(entrada, "\n")] = '\0';
-        strcpy(new.nome, entrada);
+    entrada[strcspn(entrada, "\n")] = '\0';
+    if(strcmp(entrada, "-") != 0 && strlen(entrada) > 0) {
+        strcpy(novo.nome, entrada);
     }
     
     printf("Idade [%d]: ", p->idade);
     fgets(entrada, sizeof(entrada), stdin);
-    if (entrada[0] != '\n') {
-        new.idade = atoi(entrada);
+    entrada[strcspn(entrada, "\n")] = '\0';
+    if(strcmp(entrada, "-") != 0) {
+        int idade = atoi(entrada);
+        if(idade > 0 && idade < 120) {
+            novo.idade = idade;
+        } else {
+            printf("Idade inválida!\n");
+        }
     }
     
     printf("Data Cadastro [%s]: ", p->data_cadastro);
     fgets(entrada, sizeof(entrada), stdin);
-    if (entrada[0] != '\n') {
-        entrada[strcspn(entrada, "\n")] = '\0';
-        strcpy(new.data_cadastro, entrada);
+    entrada[strcspn(entrada, "\n")] = '\0';
+    if(strcmp(entrada, "-") != 0) {
+        if(strlen(entrada) == 10 && entrada[4] == '-' && entrada[7] == '-') {
+            strcpy(novo.data_cadastro, entrada);
+        } else {
+            printf("Formato de data inválido! Use AAAA-MM-DD\n");
+        }
     }
     
     printf("\nConfirmar atualização? (S/N): ");
@@ -142,15 +147,17 @@ void atualizar_paciente(BDPaciente* bd) {
     getchar();
     
     if (toupper(op) == 'S') {
-        *p = new;
+        *p = novo;
         printf("Atualizado com sucesso!\n");
+        exibir_cabecalho_tabela();
+        exibir_paciente_tabela(*p);
     } else {
         printf("Cancelado.\n");
     }
 }
 
 void remover_paciente(BDPaciente* bd) {
-    printf("\nRemover Paciente:\n");
+    printf("\n[Remover Paciente]\n");
     bd_listar_pacientes(bd);
     
     printf("\nDigite o ID do paciente: ");
@@ -165,9 +172,10 @@ void remover_paciente(BDPaciente* bd) {
     }
     
     printf("\nPaciente a remover:\n");
-    visualizar_paciente(*p);
+    exibir_cabecalho_tabela();
+    exibir_paciente_tabela(*p);
     
-    printf("\nConfirmar remoção? (S/N): ");
+    printf("\nTem certeza de que deseja excluir o registro abaixo? (S/N)");
     char op;
     scanf(" %c", &op);
     getchar();
@@ -184,31 +192,37 @@ void remover_paciente(BDPaciente* bd) {
 }
 
 void inserir_paciente(BDPaciente* bd) {
-    printf("\nInserir Novo Paciente:\n");
+    printf("\n[Inserir Novo Paciente]\n");
     
-    Paciente new;
-    new.id = bd_gerar_id(bd);
+    Paciente novo;
+    novo.id = bd_gerar_id(bd);
     
     printf("CPF (apenas números): ");
     char cpf[12];
     scanf("%11s", cpf);
     getchar();
-    sprintf(new.cpf, "%.3s.%.3s.%.3s-%.2s", cpf, cpf+3, cpf+6, cpf+9); // Formata o CPF para o padrão XXX.XXX.XXX-XX
+    formatar_cpf(novo.cpf, cpf);
+    /* Verifica se o cpf já está cadastrado*/
+    if (bd_buscar_cpf(bd, novo.cpf)) {
+    printf("Erro: CPF já cadastrado!\n");
+    return;
+    }
     
     printf("Nome: ");
-    fgets(new.nome, sizeof(new.nome), stdin);
-    new.nome[strcspn(new.nome, "\n")] = '\0';
+    fgets(novo.nome, sizeof(novo.nome), stdin);
+    novo.nome[strcspn(novo.nome, "\n")] = '\0';
     
     printf("Idade: ");
-    scanf("%d", &new.idade);
+    scanf("%d", &novo.idade);
     getchar();
     
     printf("Data de Cadastro (AAAA-MM-DD): ");
-    scanf("%10s", new.data_cadastro); // Lê a data no formato AAAA-MM-DD
+    scanf("%10s", novo.data_cadastro); // Lê a data no formato AAAA-MM-DD
     getchar();
     
     printf("\nNovo paciente:\n");
-    visualizar_paciente(new);
+    exibir_cabecalho_tabela();
+    exibir_paciente_tabela(*p);
     
     printf("\nConfirmar inserção? (S/N): ");
     char op;
@@ -216,7 +230,7 @@ void inserir_paciente(BDPaciente* bd) {
     getchar();
     
     if (toupper(op) == 'S') {
-        bd_inserir_paciente(bd, new);
+        bd_inserir_paciente(bd, novo);
         printf("Inserido com sucesso!\n");
     } else {
         printf("Cancelado.\n");
