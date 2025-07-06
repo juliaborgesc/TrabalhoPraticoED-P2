@@ -16,6 +16,7 @@ void menu_principal() {
     printf("Escolha uma opcao: ");
 }
 
+/* Funções da interface */
 void consulta_nome(BDPaciente* bd) {
     char nome[80];
     printf("Digite o nome que deseja pesquisar: ");
@@ -119,6 +120,7 @@ void atualizar_paciente(BDPaciente* bd) {
     
     printf("CPF [%s]: ", p->cpf);
     fgets(entrada, sizeof(entrada), stdin);
+    entrada[strcspn(entrada, "\n")] = '\0';
     if(strcmp(entrada, "-") != 0) {
         char cpf_sem_formatacao[12];
         int j = 0;
@@ -158,17 +160,27 @@ void atualizar_paciente(BDPaciente* bd) {
     printf("Data Cadastro [%s]: ", p->data_cadastro);
     fgets(entrada, sizeof(entrada), stdin);
     entrada[strcspn(entrada, "\n")] = '\0';
+
     if(strcmp(entrada, "-") != 0) {
+        /* Verifica se a data está no formato correto (AAAA-MM-DD) */
         if(strlen(entrada) == 10 && entrada[4] == '-' && entrada[7] == '-') {
             strcpy(novo.data_cadastro, entrada);
-        } else {
-            printf("Formato de data inválido! Use AAAA-MM-DD\n");
+        }
+        /* Se o usuário digitou sem formatação */
+        else if(strlen(entrada) == 8 && isdigit(entrada[0])) {
+            /* Formata automaticamente para AAAA-MM-DD */
+            sprintf(novo.data_cadastro, "%.4s-%.2s-%.2s", 
+                    entrada, entrada+4, entrada+6);
+        }
+        else {
+            printf("Formato de data inválido! Use AAAA-MM-DD ou AAAAMMDD\n");
         }
     }
     
     printf("\nConfirma os novos valores para o registro abaixo? (S/N): ");
     exibir_cabecalho_tabela();
     exibir_paciente_tabela(novo);
+    printf("\nEscolha: ");
     char op;
     scanf(" %c", &op);
     getchar();
@@ -199,6 +211,7 @@ void remover_paciente(BDPaciente* bd) {
     printf("\nTem certeza de que deseja excluir o registro abaixo? (S/N)");
     exibir_cabecalho_tabela();
     exibir_paciente_tabela(*p);
+    printf("\nEscolha: ");
     char op;
     scanf(" %c", &op);
     getchar();
@@ -239,15 +252,33 @@ void inserir_paciente(BDPaciente* bd) {
     scanf("%d", &novo.idade);
     getchar();
     
-    printf("Data de Cadastro (AAAA-MM-DD): ");
-    scanf("%10s", novo.data_cadastro); // Lê a data no formato AAAA-MM-DD
-    getchar();
+    printf("Data de Cadastro (AAAA-MM-DD ou AAAAMMDD): ");
+    char entrada_data[11];  
+    scanf("%10s", entrada_data); 
+    getchar();  /* Limpa o buffer do '\n' */
+
+    /* Verifica se o usuário digitou no formato AAAAMMDD (sem hífens) */
+    if (strlen(entrada_data) == 8 && isdigit(entrada_data[0])) {
+        /* Formata para AAAA-MM-DD */
+        sprintf(novo.data_cadastro, "%.4s-%.2s-%.2s", 
+                entrada_data,      // AAAA
+                entrada_data + 4,  // MM
+                entrada_data + 6); // DD
+    }
+    /* Se já estiver no formato AAAA-MM-DD, copia normalmente */
+    else if (strlen(entrada_data) == 10 && entrada_data[4] == '-' && entrada_data[7] == '-') {
+        strcpy(novo.data_cadastro, entrada_data);
+    }
+    else {
+        printf("Formato inválido!\n");
+    }
     
     printf("\nNovo paciente:\n");
     exibir_cabecalho_tabela();
     exibir_paciente_tabela(novo);
     
     printf("\nConfirmar inserção? (S/N): ");
+    printf("\nEscolha: ");
     char op;
     scanf(" %c", &op);
     getchar();
@@ -289,7 +320,9 @@ int main() {
             case '2': atualizar_paciente(bd); break;
             case '3': remover_paciente(bd); break;
             case '4': inserir_paciente(bd); break;
-            case '5': bd_listar_pacientes(bd); break;
+            case '5': 
+                exibir_cabecalho_tabela();
+                bd_listar_pacientes(bd); break;
             case 'Q': 
                 printf("Saindo...\n");
                 break;
