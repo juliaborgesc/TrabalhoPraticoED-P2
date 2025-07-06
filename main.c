@@ -20,23 +20,52 @@ void consulta_nome(BDPaciente* bd) {
     char nome[80];
     printf("Digite o nome que deseja pesquisar: ");
     fgets(nome, sizeof(nome), stdin);
-    nome[strcspn(nome, "\n")] = '\0';
+    nome[strcspn(nome, "\n")] = '\0'; /* Remove o \n */
+
+    /* Converte a busca para minúsculas */
+    char busca[80];
+    for(int i = 0; nome[i]; i++) {
+        busca[i] = tolower(nome[i]);
+    }
+    busca[strlen(nome)] = '\0';
+
+    NodePaciente* resultados = NULL;
+    NodePaciente* atual = bd->first;
     
-    NodePaciente* resultados = bd_buscar_nome(bd, nome);
+    while(atual) {
+        char nome_paciente[80];
+        /* Converte o nome do paciente para minúsculas */
+        for(int i = 0; atual->paciente.nome[i]; i++) {
+            nome_paciente[i] = tolower(atual->paciente.nome[i]);
+        }
+        nome_paciente[strlen(atual->paciente.nome)] = '\0';
+
+        /* Verifica se contém o prefixo buscado */
+        if(strstr(nome_paciente, busca) != NULL) {
+            NodePaciente* novo = (NodePaciente*)malloc(sizeof(NodePaciente));
+            if(novo) {
+                novo->paciente = atual->paciente;
+                novo->next = resultados;
+                resultados = novo;
+            }
+        }
+        atual = atual->next;
+    }
+
     if (!resultados) {
-        printf("Nenhum paciente encontrado.\n");
+        printf("Nenhum paciente encontrado com '%s'.\n", nome);
         return;
     }
-    
-    printf("\nResultados:\n");
+
+    printf("\nResultados para '%s':\n", nome);
     exibir_cabecalho_tabela();
     
-    NodePaciente* atual = resultados;
-    while (atual) {
-        exibir_paciente_tabela(atual->paciente);
-        NodePaciente* temp = atual;
-        atual = atual->next;
+    NodePaciente* temp = resultados;
+    while(temp) {
+        exibir_paciente_tabela(temp->paciente);
+        NodePaciente* proximo = temp->next;
         free(temp);
+        temp = proximo;
     }
 }
 
@@ -83,11 +112,7 @@ void atualizar_paciente(BDPaciente* bd) {
         return;
     }
     
-    printf("\nDados atuais:\n");
-    exibir_cabecalho_tabela();
-    exibir_paciente_tabela(*p);
-    
-    printf("\nDigite os novos valores (digite '-' manter o atual):\n");
+    printf("\nDigite os novos valores (para manter o valor atual de um campo, digite '-'):\n");
     
     Paciente novo = *p;
     char entrada[100];
@@ -141,7 +166,9 @@ void atualizar_paciente(BDPaciente* bd) {
         }
     }
     
-    printf("\nConfirmar atualização? (S/N): ");
+    printf("\nConfirma os novos valores para o registro abaixo? (S/N): ");
+    exibir_cabecalho_tabela();
+    exibir_paciente_tabela(novo);
     char op;
     scanf(" %c", &op);
     getchar();
@@ -149,8 +176,6 @@ void atualizar_paciente(BDPaciente* bd) {
     if (toupper(op) == 'S') {
         *p = novo;
         printf("Atualizado com sucesso!\n");
-        exibir_cabecalho_tabela();
-        exibir_paciente_tabela(*p);
     } else {
         printf("Cancelado.\n");
     }
@@ -171,11 +196,9 @@ void remover_paciente(BDPaciente* bd) {
         return;
     }
     
-    printf("\nPaciente a remover:\n");
+    printf("\nTem certeza de que deseja excluir o registro abaixo? (S/N)");
     exibir_cabecalho_tabela();
     exibir_paciente_tabela(*p);
-    
-    printf("\nTem certeza de que deseja excluir o registro abaixo? (S/N)");
     char op;
     scanf(" %c", &op);
     getchar();
@@ -222,7 +245,7 @@ void inserir_paciente(BDPaciente* bd) {
     
     printf("\nNovo paciente:\n");
     exibir_cabecalho_tabela();
-    exibir_paciente_tabela(*p);
+    exibir_paciente_tabela(novo);
     
     printf("\nConfirmar inserção? (S/N): ");
     char op;
