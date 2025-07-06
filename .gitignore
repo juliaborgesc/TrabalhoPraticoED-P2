@@ -1,0 +1,9 @@
+# Arquivos objeto
+*.o
+
+# Executável
+clinica
+clinica.exe
+
+*.exe~
+*.log
