@@ -6,7 +6,7 @@
 /*Funções para imprimir os dados do paciente em formato tabela*/
 void exibir_cabecalho_tabela() {
     printf("\n%-4s %-15s %-25s %-6s %-13s\n", 
-           "ID", "CPF", "Nome", "Idade", "Data_Cadastro");
+           "ID", "CPF", "Nome", "Idade", "Data de Cadastro");
 }
 
 void exibir_paciente_tabela(Paciente p) {

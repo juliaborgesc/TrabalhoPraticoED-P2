@@ -60,7 +60,7 @@ void consulta_nome(BDPaciente* bd) {
 
     printf("\nResultados para '%s':\n", nome);
     exibir_cabecalho_tabela();
-    
+    /* Exibe os resultados */
     NodePaciente* temp = resultados;
     while(temp) {
         exibir_paciente_tabela(temp->paciente);
@@ -70,6 +70,7 @@ void consulta_nome(BDPaciente* bd) {
     }
 }
 
+/* Função da interface de consulta por cpf */
 void consulta_cpf(BDPaciente* bd) {
     char cpf[20];
     printf("Digite o CPF que deseja pesquisar: ");
@@ -94,6 +95,7 @@ void consulta_cpf(BDPaciente* bd) {
     }
 }
 
+/* Função da interface de atualização de paciente */
 void atualizar_paciente(BDPaciente* bd) {
     printf("\n[Atualizar Paciente]\n");
 
@@ -115,13 +117,16 @@ void atualizar_paciente(BDPaciente* bd) {
     
     printf("\nDigite os novos valores (para manter o valor atual de um campo, digite '-'):\n");
     
+    /* Cria uma cópia do paciente para edição 
+    * Isso evita modificar o original até a confirmação
+    * e permite manter os valores que não forem alterados */
     Paciente novo = *p;
     char entrada[100];
     
     printf("CPF [%s]: ", p->cpf);
     fgets(entrada, sizeof(entrada), stdin);
     entrada[strcspn(entrada, "\n")] = '\0';
-    if(strcmp(entrada, "-") != 0) {
+    if(strcmp(entrada, "-") != 0) { 
         char cpf_sem_formatacao[12];
         int j = 0;
         for(int i = 0; entrada[i] && j < 11; i++) {
@@ -138,7 +143,7 @@ void atualizar_paciente(BDPaciente* bd) {
         }
     }
     
-    printf("Nome [%s]: ", p->nome);
+    printf("Nome [%s]: ", p->nome); 
     fgets(entrada, sizeof(entrada), stdin);
     entrada[strcspn(entrada, "\n")] = '\0';
     if(strcmp(entrada, "-") != 0 && strlen(entrada) > 0) {
@@ -193,6 +198,7 @@ void atualizar_paciente(BDPaciente* bd) {
     }
 }
 
+/* Função da interface de remoção de paciente */
 void remover_paciente(BDPaciente* bd) {
     printf("\n[Remover Paciente]\n");
     bd_listar_pacientes(bd);
@@ -216,6 +222,7 @@ void remover_paciente(BDPaciente* bd) {
     scanf(" %c", &op);
     getchar();
     
+    /* Verifica se o usuário confirmou a remoção */
     if (toupper(op) == 'S') {
         if (bd_remover_paciente(bd, id)) {
             printf("Removido com sucesso!\n");
@@ -227,6 +234,7 @@ void remover_paciente(BDPaciente* bd) {
     }
 }
 
+/* Função da interface de inserção de paciente */
 void inserir_paciente(BDPaciente* bd) {
     printf("\n[Inserir Novo Paciente]\n");
     

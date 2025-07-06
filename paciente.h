@@ -1,6 +1,7 @@
 #ifndef PACIENTE_H
 #define PACIENTE_H
 
+/* Estrutura que representa um paciente */
 typedef struct {
     int id;
     char cpf[15];

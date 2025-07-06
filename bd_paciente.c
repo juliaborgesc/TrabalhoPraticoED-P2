@@ -13,6 +13,7 @@ BDPaciente* bd_criar() {
     return bd;
 }
 
+/* Libera a memória alocada para o banco de dados */
 void bd_free(BDPaciente* bd) {
     if (!bd) return;
     
@@ -25,6 +26,7 @@ void bd_free(BDPaciente* bd) {
     free(bd);
 }
 
+/* Carrega pacientes do banco de dados CSV */
 BDPaciente* bd_carregar_arquivo(const char* bd_paciente) {
     FILE* file = fopen(bd_paciente, "r");
     if (!file) return NULL;
@@ -52,6 +54,7 @@ BDPaciente* bd_carregar_arquivo(const char* bd_paciente) {
     return bd;
 }
 
+/* Salva pacientes no CSV */
 int bd_salvar_arquivo(const char* bd_paciente, BDPaciente* bd) {
     FILE* file = fopen(bd_paciente, "w");
     if (!file) return 0;
@@ -75,7 +78,7 @@ int bd_salvar_arquivo(const char* bd_paciente, BDPaciente* bd) {
 /* Insere um novo paciente no bd*/
 void bd_inserir_paciente(BDPaciente* bd, Paciente paciente) {
     NodePaciente* new = (NodePaciente*)malloc(sizeof(NodePaciente));
-    if (!new) return;
+    if (!new) return; 
     
     new->paciente = paciente;
     new->next = bd->first;
