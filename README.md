@@ -1,6 +1,6 @@
 # Trabalho Prático da disciplina Estrutura de Dados — Parte II
 
-Este trabalho tem como objetivo implementar um sistema de gerenciamento de pacientes de uma clínica utilizando a linguagem C e o TAD de **LinkedList** para manipulação dinâmica dos dados. Os registros dos pacientes são armazenados em um arquivo CSV, que é carregado e salvo durante a execução do sistema.
+A segunda parte deste trabalho tem como objetivo implementar um sistema de gerenciamento de pacientes de uma clínica utilizando a linguagem C e o TAD **LinkedList** para manipulação dinâmica dos dados. Os registros dos pacientes são armazenados em um arquivo CSV, que é carregado e salvo durante a execução do sistema.
 
 O sistema permite realizar operações como consulta, inserção, atualização e remoção de pacientes, além da listagem de todos os registros.
 
@@ -34,7 +34,7 @@ typedef struct {
 ```
 
 ### "BdPaciente"
-Representa o banco de dados e o nó 
+Representa o banco de dados e o nó da lista encadeada.
 
 ```c
 typedef struct NodePaciente {
@@ -52,9 +52,9 @@ typedef struct {
 
 - Consulta
 
--- Por nome (busca por prefixo, case‑insensitive)
+    - Por nome (busca por prefixo, case‑insensitive)
 
--- Por CPF (busca por prefixo)
+    - Por CPF (busca por prefixo)
 
 - Inserção de novo paciente (com verificação de CPF duplicado)
 
