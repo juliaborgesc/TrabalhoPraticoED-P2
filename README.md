@@ -10,10 +10,11 @@ O sistema permite realizar operações como consulta, inserção, atualização 
 
 O projeto está organizado nos seguintes arquivos:
 
-- **"main.c"** — Responsável pela interface com o usuário (menus e interações), executando as operações do sistema.
-- **"paciente.h/.c"** — Define a estrutura `Paciente`, além de funções auxiliares como exibição em tabela e formatação de CPF.
-- **"bd_paciente.h/.c"** — Implementa o TAD `BDPaciente`, que utiliza uma lista encadeada simples para armazenar e manipular os pacientes.
-- **"bd_paciente.csv"** — Arquivo onde os dados dos pacientes são persistidos (ID, CPF, nome, idade e data de cadastro).
+- **"main.c"** — Contém o loop principal do programa e controle de fluxo;
+- **"interface.h/c"** - Implementa todas as funções de interface com o usuário;
+- **"paciente.h/c"** — Define a estrutura `Paciente`, além de funções auxiliares como exibição em tabela e formatação de CPF;
+- **"bd_paciente.h/c"** — Implementa o TAD `BDPaciente`, que utiliza uma lista encadeada simples para armazenar e manipular os pacientes;
+- **"bd_paciente.csv"** — Arquivo onde os dados dos pacientes são persistidos (ID, CPF, nome, idade e data de cadastro);
 - **"Makefile"** — Define os comandos de compilação e execução do programa via terminal.
 
 ---
@@ -70,13 +71,15 @@ typedef struct {
 
 ## Decisões de Implementação
 
-- Utilização de lista encadeada simples para gerenciar dinamicamente os registros, conforme abordado em aula.
+- Utilização de lista encadeada simples para gerenciar dinamicamente os registros, conforme abordado em aula;
 
-- A função bd_gerar_id() itera pela lista para encontrar o maior ID e retorna maior + 1, fazendo com que fique em ordem.
+- A função bd_gerar_id() itera pela lista para encontrar o maior ID e retorna maior + 1, fazendo com que fique em ordem;
 
-- Carregamento e salvamento do CSV ocorrendo apenas no início e no término do programa, evitando leituras/escritas repetidas durante a execução.
+- Carregamento e salvamento do CSV ocorrendo apenas no início e no término do programa, evitando leituras/escritas repetidas durante a execução;
 
-- Busca por nome convertendo tanto o termo buscado quanto o nome dos pacientes para minúsculas, evitando erros.
+- Busca por nome convertendo tanto o termo buscado quanto o nome dos pacientes para minúsculas, evitando erros;
+
+- Arquivos de interface para manter boas práticas e evitar que o main fique muito grande.
 
 # Como executar o programa
 

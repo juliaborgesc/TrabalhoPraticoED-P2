@@ -6,7 +6,7 @@ CFLAGS = -Wall
 TARGET = paciente
 
 # Source files
-SRCS = main.c paciente.c bd_paciente.c
+SRCS = main.c paciente.c bd_paciente.c interface.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

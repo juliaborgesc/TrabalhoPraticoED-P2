@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h> // Para isdigit()
 #include <string.h>
 #include "bd_paciente.h"
 
@@ -146,14 +147,43 @@ NodePaciente* bd_buscar_cpf(BDPaciente* bd, const char* cpf){
     NodePaciente* resultados = NULL;
     NodePaciente* atual = bd->first;
     
-    while (atual) {
-        /* Verifica se o cpf contém o prefixo */
-        if (strstr(atual->paciente.cpf, cpf) != NULL) {
-            NodePaciente* new = (NodePaciente*)malloc(sizeof(NodePaciente));
-            if (new) {
-                new->paciente = atual->paciente;
-                new->next = resultados;
-                resultados = new;
+    /* Extrai apenas dígitos do CPF buscado */
+    char cpf_buscado[12] = {0};
+    int j = 0;
+    for(int i = 0; cpf[i] && j < 11; i++) {
+        if(isdigit((unsigned char)cpf[i])) {
+            cpf_buscado[j++] = cpf[i];
+        }
+    }
+    
+    /* Se nenhum dígito válido foi informado */
+    if(j == 0) return NULL;
+    
+    while(atual) {
+        /* Extrai apenas dígitos do CPF armazenado */
+        char cpf_armazenado[12] = {0};
+        int k = 0;
+        for(int i = 0; atual->paciente.cpf[i] && k < 11; i++) {
+            if(isdigit((unsigned char)atual->paciente.cpf[i])) {
+                cpf_armazenado[k++] = atual->paciente.cpf[i];
+            }
+        }
+        
+        /* Verifica se o CPF buscado é prefixo do CPF armazenado */
+        int match = 1; // 1 para verdadeiro
+        for(int i = 0; i < j&& cpf_buscado[i] && cpf_armazenado[i]; i++) {
+            if(cpf_buscado[i] != cpf_armazenado[i]) {
+                match = 0;
+                break;
+            }
+        }
+        
+        if(match) {
+            NodePaciente* novo = (NodePaciente*)malloc(sizeof(NodePaciente));
+            if(novo) {
+                novo->paciente = atual->paciente;
+                novo->next = resultados;
+                resultados = novo;
             }
         }
         atual = atual->next;

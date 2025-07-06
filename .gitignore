@@ -2,8 +2,8 @@
 *.o
 
 # Executável
-clinica
-clinica.exe
+paciente
+paciente.exe
 
 *.exe~
 *.log
